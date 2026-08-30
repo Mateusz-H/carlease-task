@@ -12,6 +12,7 @@ use App\Modern\Shortlist\Domain\ShortlistCapacityExceeded;
 use App\Modern\Shortlist\Ui\ReadModel\GetShortlist;
 use App\Modern\Shortlist\Ui\ReadModel\OfferView;
 use App\Modern\Shortlist\Ui\ReadModel\OfferViews;
+use Ecotone\Modelling\AggregateNotFoundException;
 use Ecotone\Modelling\CommandBus;
 use Ecotone\Modelling\QueryBus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -78,10 +79,13 @@ final class ShortlistController extends AbstractController
     {
         $this->assertCsrfToken($request);
 
-        $this->commandBus->send(new RemoveOfferFromShortlist(
-            $this->visitorSessionId($request),
-            $this->offerIdFrom($request),
-        ));
+        try {
+            $this->commandBus->send(new RemoveOfferFromShortlist(
+                $this->visitorSessionId($request),
+                $this->offerIdFrom($request),
+            ));
+        } catch (AggregateNotFoundException) {
+        }
 
         return $this->redirectToRoute('shortlist_index');
     }

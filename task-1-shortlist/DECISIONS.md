@@ -9,7 +9,7 @@ przed wysłaniem komendy; odpuszczone, bo z UI ta ścieżka nie istnieje.
 
 **Sprzątanie porzuconych schowków.** Sesja anonimowa wygasa, wiersz w tabeli zostaje
 na zawsze. Zrobiłbym kolumnę ze znacznikiem ostatniej zmiany i cykliczne polecenie
-konsolowe kasujące schowki starsze niż TTL sesji.
+kasujące schowki starsze niż TTL sesji.
 
 ## 2. Ile czasu zajęło
 

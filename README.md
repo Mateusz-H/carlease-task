@@ -4,7 +4,6 @@ Schowek ofert samochodowych dla anonimowych odwiedzających. Symfony 7.4, PHP 8.
 Ecotone (CQRS/messaging), Doctrine ORM, MariaDB, Tailwind 4.
 
 - [task-1-shortlist](task-1-shortlist/) — implementacja (szczegóły w [README](task-1-shortlist/README.md))
-- [task-2-code-review](task-2-code-review/) — code review ([REVIEW.md](task-2-code-review/REVIEW.md))
 
 ## Widoki
 
@@ -27,3 +26,6 @@ Ecotone (CQRS/messaging), Doctrine ORM, MariaDB, Tailwind 4.
 ### Widok mobilny
 
 ![Widok mobilny](task-1-shortlist/.readme/shortlist-mobile.jpg)
+
+# Code Review
+- [task-2-code-review](task-2-code-review/) — code review ([REVIEW.md](task-2-code-review/REVIEW.md))

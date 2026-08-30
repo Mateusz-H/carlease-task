@@ -45,7 +45,7 @@ final readonly class ShortlistItems implements \Countable
 
     public function count(): int
     {
-        return \count($this->ids);
+        return count($this->ids);
     }
 
     /** @return list<OfferId> */

@@ -27,6 +27,6 @@ final readonly class OfferViews implements \IteratorAggregate, \Countable
 
     public function count(): int
     {
-        return \count($this->views);
+        return count($this->views);
     }
 }

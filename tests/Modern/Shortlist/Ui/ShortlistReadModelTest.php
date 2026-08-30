@@ -7,7 +7,7 @@ namespace App\Tests\Modern\Shortlist\Ui;
 use App\Modern\Shortlist\Application\Command\AddOfferToShortlist;
 use App\Modern\Shortlist\Ui\ReadModel\GetShortlist;
 use App\Modern\Shortlist\Ui\ReadModel\OfferView;
-use App\Modern\Shortlist\Ui\ReadModel\OfferViews;
+use App\Modern\Shortlist\Ui\ReadModel\ShortlistView;
 use Ecotone\Modelling\CommandBus;
 use Ecotone\Modelling\QueryBus;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -29,13 +29,13 @@ final class ShortlistReadModelTest extends KernelTestCase
 
     public function test_unknown_visitor_gets_empty_shortlist(): void
     {
-        $views = $this->queryBus->send(new GetShortlist('sess-' . Uuid::v4()->toRfc4122()));
+        $view = $this->queryBus->send(new GetShortlist('sess-' . Uuid::v4()->toRfc4122()));
 
-        self::assertInstanceOf(OfferViews::class, $views);
-        self::assertCount(0, $views);
+        self::assertInstanceOf(ShortlistView::class, $view);
+        self::assertSame(0, $view->savedCount());
     }
 
-    public function test_shortlist_is_enriched_from_catalog_and_vanished_offers_are_skipped(): void
+    public function test_shortlist_is_enriched_from_catalog_and_vanished_offers_stay_as_unavailable(): void
     {
         $sessionId = 'sess-' . Uuid::v4()->toRfc4122();
 
@@ -43,21 +43,23 @@ final class ShortlistReadModelTest extends KernelTestCase
         $this->commandBus->send(new AddOfferToShortlist($sessionId, 'off-gone'));
         $this->commandBus->send(new AddOfferToShortlist($sessionId, 'off-1001'));
 
-        $views = $this->queryBus->send(new GetShortlist($sessionId));
+        $view = $this->queryBus->send(new GetShortlist($sessionId));
 
-        self::assertInstanceOf(OfferViews::class, $views);
+        self::assertInstanceOf(ShortlistView::class, $view);
         self::assertSame(
             ['off-1002', 'off-1001'],
-            array_map(fn (OfferView $view) => $view->offerId, iterator_to_array($views)),
+            array_map(fn (OfferView $offer) => $offer->offerId, iterator_to_array($view->offers)),
         );
 
-        [$first] = iterator_to_array($views);
+        [$first] = iterator_to_array($view->offers);
         self::assertSame('Skoda', $first->brand);
         self::assertSame('Octavia', $first->model);
         self::assertSame(1449.50, $first->monthlyInstalment);
         self::assertSame('/images/offer-placeholder.svg', $first->thumbnailUrl);
 
-        self::assertTrue($views->contains('off-1001'));
-        self::assertFalse($views->contains('off-gone'));
+        self::assertSame(['off-gone'], $view->unavailableOfferIds);
+        self::assertSame(3, $view->savedCount());
+        self::assertTrue($view->contains('off-1001'));
+        self::assertTrue($view->contains('off-gone'));
     }
 }

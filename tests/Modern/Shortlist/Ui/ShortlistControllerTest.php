@@ -52,6 +52,26 @@ final class ShortlistControllerTest extends WebTestCase
         self::assertSelectorTextContains('[aria-label="Twój schowek"]', 'Schowek jest pusty');
     }
 
+    public function test_vanished_offer_shows_as_unavailable_and_can_be_removed(): void
+    {
+        $client = self::createClient();
+        $crawler = $client->request('GET', '/');
+        $token = $crawler->filter('input[name="_token"]')->attr('value');
+
+        // Id spoza fixture = oferta zapisana, ktorej indeks juz nie zna.
+        $client->request('POST', '/shortlist/add', ['_token' => $token, 'offerId' => 'off-9999']);
+        $client->followRedirect();
+
+        self::assertSelectorTextContains('[aria-label="Twój schowek"]', 'Oferta niedostępna');
+        self::assertSelectorTextContains('[aria-label="Twój schowek"]', '1/10');
+
+        $client->submitForm('Usuń niedostępną ofertę ze schowka');
+        self::assertResponseRedirects('/');
+        $client->followRedirect();
+
+        self::assertSelectorTextContains('[aria-label="Twój schowek"]', 'Schowek jest pusty');
+    }
+
     public function test_exceeding_capacity_shows_flash_message(): void
     {
         $client = self::createClient();

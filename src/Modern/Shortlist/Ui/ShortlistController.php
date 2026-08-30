@@ -109,7 +109,7 @@ final class ShortlistController extends AbstractController
         $session = $request->getSession();
         $id = $session->get('visitor_session_id');
 
-        if (!\is_string($id) || $id === '') {
+        if (!is_string($id) || $id === '') {
             $id = 'sess-' . Uuid::v4()->toRfc4122();
             $session->set('visitor_session_id', $id);
         }

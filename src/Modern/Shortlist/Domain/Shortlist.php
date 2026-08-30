@@ -55,8 +55,8 @@ class Shortlist
             return;
         }
 
-        if (\count($items) >= self::CAPACITY) {
-            throw new ShortlistCapacityExceeded(self::CAPACITY, \count($items));
+        if (count($items) >= self::CAPACITY) {
+            throw new ShortlistCapacityExceeded(self::CAPACITY, count($items));
         }
 
         $this->storeItems($items->add($offerId));

@@ -23,12 +23,12 @@
                    class="overflow-hidden rounded-card border border-brand-100 bg-white shadow-sm lg:sticky lg:top-8 lg:order-last lg:mt-11">
                 <header class="flex items-center justify-between bg-brand-50 px-4 py-3">
                     <h2 class="font-bold">Twój schowek</h2>
-                    <span class="rounded-full px-2.5 py-0.5 text-xs font-bold text-white {{ shortlist|length >= capacity ? 'bg-danger-500' : 'bg-brand-600' }}">
-                        {{ shortlist|length }}/{{ capacity }}
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-bold text-white {{ shortlist.savedCount >= capacity ? 'bg-danger-500' : 'bg-brand-600' }}">
+                        {{ shortlist.savedCount }}/{{ capacity }}
                     </span>
                 </header>
 
-                {% if shortlist|length == 0 %}
+                {% if shortlist.savedCount == 0 %}
                     <div class="flex flex-col items-center gap-2 px-4 py-8 text-center">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-8 origin-center text-brand-100 motion-safe:animate-heartbeat" aria-hidden="true">
                             <path d="M12 21C7 16.5 3 13 3 8.8 3 6 5.2 4 7.8 4c1.7 0 3.2.8 4.2 2.2C13 4.8 14.5 4 16.2 4 18.8 4 21 6 21 8.8c0 4.2-4 7.7-9 12.2z"/>
@@ -38,7 +38,7 @@
                 {% else %}
                     {# mobile: max-h-56 ≈ 3,5 wiersza, reszta pod scrollem; desktop bez limitu #}
                     <ul class="max-h-56 divide-y divide-ink-50 overflow-y-auto p-2 lg:max-h-none lg:overflow-visible">
-                        {% for offer in shortlist %}
+                        {% for offer in shortlist.offers %}
                             <li class="flex items-center gap-3 px-2 py-2.5">
                                 <img src="{{ offer.thumbnailUrl }}" alt="" loading="lazy" class="h-10 w-14 shrink-0 rounded bg-brand-50 object-cover">
                                 <div class="min-w-0 flex-1">
@@ -51,6 +51,30 @@
                                     <button type="submit"
                                             class="flex size-7 cursor-pointer items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-50 hover:text-danger-500 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500">
                                         <span class="sr-only">Usuń {{ offer.brand }} {{ offer.model }} ze schowka</span>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3.5" aria-hidden="true">
+                                            <path d="M6 6l12 12M18 6L6 18"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                        {% for offerId in shortlist.unavailableOfferIds %}
+                            <li class="flex items-center gap-3 px-2 py-2.5">
+                                <div class="flex h-10 w-14 shrink-0 items-center justify-center rounded bg-ink-50">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4 text-ink-500" aria-hidden="true">
+                                        <path d="M3 3l18 18M9.9 4.2A9 9 0 0121 12a9 9 0 01-1.2 4.5M6.3 6.3A9 9 0 0012 21a9 9 0 004.5-1.2"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-semibold text-ink-500">Oferta niedostępna</p>
+                                    <p class="text-xs text-ink-500">Zajmuje miejsce w schowku.</p>
+                                </div>
+                                <form method="post" action="{{ path('shortlist_remove') }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('shortlist') }}">
+                                    <input type="hidden" name="offerId" value="{{ offerId }}">
+                                    <button type="submit"
+                                            class="flex size-7 cursor-pointer items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-50 hover:text-danger-500 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500">
+                                        <span class="sr-only">Usuń niedostępną ofertę ze schowka</span>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3.5" aria-hidden="true">
                                             <path d="M6 6l12 12M18 6L6 18"/>
                                         </svg>

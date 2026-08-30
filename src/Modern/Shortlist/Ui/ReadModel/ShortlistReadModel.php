@@ -19,11 +19,12 @@ final readonly class ShortlistReadModel
     /**
      * Read path bypasses the aggregate on purpose: the database contributes only WHICH
      * offers were saved, the catalog index is the only source of what a car IS, asked
-     * once per view. Offers gone from the index are skipped — a vanished offer must
-     * never break the view.
+     * once per view. Offers gone from the index still occupy capacity slots, so they are
+     * returned as unavailable ids instead of vanishing — a vanished offer must never
+     * break the view, but hiding it would make the capacity counter lie.
      */
     #[QueryHandler]
-    public function getShortlist(GetShortlist $query): OfferViews
+    public function getShortlist(GetShortlist $query): ShortlistView
     {
         $json = $this->connection->fetchOne(
             'SELECT offer_ids FROM shortlist WHERE visitor_session_id = ?',
@@ -31,17 +32,19 @@ final readonly class ShortlistReadModel
         );
 
         if ($json === false) {
-            return new OfferViews();
+            return new ShortlistView();
         }
 
         /** @var list<string> $offerIds */
-        $offerIds = json_decode((string) $json, true, flags: \JSON_THROW_ON_ERROR);
+        $offerIds = json_decode((string) $json, true, flags: JSON_THROW_ON_ERROR);
         $documents = $this->catalog->findManyByOfferIds($offerIds);
 
         $views = [];
+        $unavailable = [];
 
         foreach ($offerIds as $offerId) {
             if (!isset($documents[$offerId])) {
+                $unavailable[] = $offerId;
                 continue;
             }
 
@@ -55,6 +58,6 @@ final readonly class ShortlistReadModel
             );
         }
 
-        return new OfferViews(...$views);
+        return new ShortlistView(new OfferViews(...$views), $unavailable);
     }
 }

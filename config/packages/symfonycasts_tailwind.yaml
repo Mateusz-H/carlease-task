@@ -1,0 +1,6 @@
+symfonycasts_tailwind:
+    # Tailwind 4 is configured on the CSS side:
+    # assets/styles/app.css uses @import 'tailwindcss' and @source.
+    # The binary version matches the one the project runs.
+    binary_version: 'v4.2.1'
+    input_css: 'assets/styles/app.css'

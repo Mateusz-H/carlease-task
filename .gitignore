@@ -1,0 +1,6 @@
+﻿/vendor/
+/node_modules/
+/var/
+/public/assets/
+/config/reference.php
+/.phpunit.result.cache

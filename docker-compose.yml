@@ -1,0 +1,28 @@
+services:
+    app:
+        build: .
+        working_dir: /app
+        user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+        volumes:
+            - .:/app
+        environment:
+            COMPOSER_HOME: /tmp/composer
+        depends_on:
+            db:
+                condition: service_healthy
+        ports:
+            - "${HTTP_PORT:-8000}:8000"
+        command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+
+    db:
+        image: mariadb:10.11
+        environment:
+            MARIADB_ROOT_PASSWORD: root
+            MARIADB_DATABASE: app
+            MARIADB_USER: app
+            MARIADB_PASSWORD: app
+        healthcheck:
+            test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+            interval: 3s
+            timeout: 3s
+            retries: 30

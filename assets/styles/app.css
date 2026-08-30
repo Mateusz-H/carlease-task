@@ -1,0 +1,16 @@
+/*
+ * Tailwind CSS 4. The design tokens live in ./tokens.css, imported below.
+ *
+ * A colour defined there becomes a utility class straight away: --color-brand-500
+ * gives bg-brand-500, text-brand-500, border-brand-500 and the rest.
+ *
+ * Build: php bin/console tailwind:build  ->  var/tailwind/app.built.css,
+ * served through AssetMapper. Node is not involved.
+ */
+
+@import "tailwindcss";
+@import "./tokens.css";
+
+@source "../../templates";
+@source "../../src";
+

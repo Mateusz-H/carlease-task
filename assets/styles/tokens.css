@@ -1,0 +1,27 @@
+/*
+ * Design tokens. Kept in their own file, the way the main project does it:
+ * app.css imports Tailwind and then this, so the token list stays readable
+ * and reviewable on its own.
+ */
+@theme {
+    /* The default Tailwind palette is switched off: this project ships its own colours,
+       so anything outside them simply does not compile. White and black come back
+       explicitly because the templates use them. */
+    --color-*: initial;
+    --color-white: #fff;
+    --color-black: #000;
+
+    --color-brand-50: oklch(0.97 0.02 258);
+    --color-brand-100: oklch(0.93 0.05 258);
+    --color-brand-500: oklch(0.55 0.19 258);
+    --color-brand-600: oklch(0.48 0.18 258);
+    --color-brand-700: oklch(0.41 0.16 258);
+
+    --color-ink-500: oklch(0.45 0.01 258);
+    --color-ink-900: oklch(0.21 0.01 258);
+
+    --color-danger-500: oklch(0.58 0.21 27);
+    --color-success-600: oklch(0.55 0.14 155);
+
+    --radius-card: 0.75rem;
+}

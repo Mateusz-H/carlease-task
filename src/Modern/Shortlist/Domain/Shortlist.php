@@ -63,6 +63,13 @@ class Shortlist
         $this->recordThat(new OfferAddedToShortlist($this->visitorSessionId, $offerId->value));
     }
 
+    /**
+     * Deliberately no factory redirect for this command: removing from a shortlist that
+     * does not exist throws AggregateNotFoundException. The "removing an absent item is
+     * a no-op" rule covers items of an existing shortlist, not a missing shortlist. The
+     * UI renders the remove action only inside a shortlist view, which exists only with
+     * the aggregate, so this path is reachable only by a hand-crafted request.
+     */
     #[CommandHandler]
     public function removeOffer(RemoveOfferFromShortlist $command): void
     {

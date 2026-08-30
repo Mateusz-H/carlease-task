@@ -7,3 +7,10 @@ services:
         resource: '../src/'
         exclude:
             - '../src/Kernel.php'
+
+when@test:
+    services:
+        App\Tests\Support\RecordingPopularityCounter: ~
+
+        App\Modern\Shortlist\Application\Port\OfferPopularityCounterInterface:
+            alias: App\Tests\Support\RecordingPopularityCounter

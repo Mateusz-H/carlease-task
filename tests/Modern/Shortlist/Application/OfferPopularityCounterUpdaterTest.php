@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Modern\Shortlist\Application;
 
 use App\Modern\Shortlist\Application\Command\AddOfferToShortlist;
-use App\Modern\Shortlist\Application\IncrementOfferPopularity;
+use App\Modern\Shortlist\Application\OfferPopularityCounterUpdater;
 use App\Modern\Shortlist\Application\Port\OfferPopularityCounterInterface;
 use App\Modern\Shortlist\Domain\Shortlist;
 use App\Tests\Support\RecordingPopularityCounter;
@@ -16,7 +16,7 @@ use Ecotone\Messaging\Config\ServiceConfiguration;
 use Ecotone\Messaging\Endpoint\ExecutionPollingMetadata;
 use PHPUnit\Framework\TestCase;
 
-final class IncrementOfferPopularityTest extends TestCase
+final class OfferPopularityCounterUpdaterTest extends TestCase
 {
     private RecordingPopularityCounter $counter;
     private FlowTestSupport $ecotone;
@@ -25,10 +25,10 @@ final class IncrementOfferPopularityTest extends TestCase
     {
         $this->counter = new RecordingPopularityCounter();
         $this->ecotone = EcotoneLite::bootstrapFlowTesting(
-            [Shortlist::class, IncrementOfferPopularity::class],
+            [Shortlist::class, OfferPopularityCounterUpdater::class],
             [
                 OfferPopularityCounterInterface::class => $this->counter,
-                new IncrementOfferPopularity($this->counter),
+                new OfferPopularityCounterUpdater($this->counter),
             ],
             ServiceConfiguration::createWithDefaults()->withExtensionObjects([
                 SimpleMessageChannelBuilder::createQueueChannel('async'),

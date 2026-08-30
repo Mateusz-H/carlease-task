@@ -14,3 +14,11 @@
 @source "../../templates";
 @source "../../src";
 
+* {
+    scrollbar-width: thin;
+}
+
+::selection {
+    background-color: var(--color-brand-100);
+}
+

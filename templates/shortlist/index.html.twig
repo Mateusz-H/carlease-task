@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <main class="mx-auto max-w-6xl px-4 py-8">
+        <header class="mb-6 flex items-baseline justify-between">
+            <h1 class="text-2xl font-bold">Schowek ofert</h1>
+            {% set count = available|length %}
+            <span class="text-sm font-medium text-ink-500">
+                <span class="font-bold text-brand-600">{{ count }}</span>
+                {{ count == 1 ? 'auto' : (count % 10 in [2, 3, 4] and count % 100 not in [12, 13, 14] ? 'auta' : 'aut') }}
+                &middot; najem miesięczny
+            </span>
+        </header>
+
+        {% for message in app.flashes('error') %}
+            <p role="alert" class="mb-6 rounded-card border border-danger-500 bg-white px-4 py-3 text-sm font-medium text-danger-500">
+                {{ message }}
+            </p>
+        {% endfor %}
+
+        <div class="grid gap-8 lg:grid-cols-[1fr_20rem] lg:items-start">
+            <aside aria-label="Twój schowek"
+                   class="overflow-hidden rounded-card border border-brand-100 bg-white shadow-sm lg:sticky lg:top-8 lg:order-last lg:mt-11">
+                <header class="flex items-center justify-between bg-brand-50 px-4 py-3">
+                    <h2 class="font-bold">Twój schowek</h2>
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-bold text-white {{ shortlist|length >= capacity ? 'bg-danger-500' : 'bg-brand-600' }}">
+                        {{ shortlist|length }}/{{ capacity }}
+                    </span>
+                </header>
+
+                {% if shortlist|length == 0 %}
+                    <div class="flex flex-col items-center gap-2 px-4 py-8 text-center">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-8 origin-center text-brand-100 motion-safe:animate-heartbeat" aria-hidden="true">
+                            <path d="M12 21C7 16.5 3 13 3 8.8 3 6 5.2 4 7.8 4c1.7 0 3.2.8 4.2 2.2C13 4.8 14.5 4 16.2 4 18.8 4 21 6 21 8.8c0 4.2-4 7.7-9 12.2z"/>
+                        </svg>
+                        <p class="text-sm text-ink-500">Schowek jest pusty.<br>Kliknij serce przy ofercie, aby ją zapisać.</p>
+                    </div>
+                {% else %}
+                    {# mobile: max-h-56 ≈ 3,5 wiersza, reszta pod scrollem; desktop bez limitu #}
+                    <ul class="max-h-56 divide-y divide-ink-50 overflow-y-auto p-2 lg:max-h-none lg:overflow-visible">
+                        {% for offer in shortlist %}
+                            <li class="flex items-center gap-3 px-2 py-2.5">
+                                <img src="{{ offer.thumbnailUrl }}" alt="" loading="lazy" class="h-10 w-14 shrink-0 rounded bg-brand-50 object-cover">
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-semibold">{{ offer.brand }} {{ offer.model }}</p>
+                                    <p class="text-xs tabular-nums text-ink-500">{{ offer.monthlyInstalment|number_format(2, ',', ' ') }} zł/mies.</p>
+                                </div>
+                                <form method="post" action="{{ path('shortlist_remove') }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('shortlist') }}">
+                                    <input type="hidden" name="offerId" value="{{ offer.offerId }}">
+                                    <button type="submit"
+                                            class="flex size-7 cursor-pointer items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-50 hover:text-danger-500 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500">
+                                        <span class="sr-only">Usuń {{ offer.brand }} {{ offer.model }} ze schowka</span>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3.5" aria-hidden="true">
+                                            <path d="M6 6l12 12M18 6L6 18"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </aside>
+
+            <section aria-label="Dostępne oferty">
+                <h2 class="mb-4 text-lg font-bold">Dostępne oferty</h2>
+                {% if available|length == 0 %}
+                    <p class="rounded-card border border-brand-100 bg-white px-4 py-10 text-center text-sm text-ink-500">
+                        Brak dostępnych ofert. Zajrzyj do nas później.
+                    </p>
+                {% else %}
+                <ul class="grid gap-6 sm:grid-cols-2">
+                    {% for offer in available %}
+                        <li class="group relative overflow-hidden rounded-card border border-brand-100 bg-white shadow-sm transition-shadow hover:shadow-md">
+                            <div class="relative overflow-hidden">
+                                <img src="{{ offer.thumbnailUrl }}" alt="" loading="lazy"
+                                     class="aspect-video w-full bg-brand-50 object-cover transition-transform duration-300 motion-safe:group-hover:scale-105">
+                                <div class="absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/60 to-transparent" aria-hidden="true"></div>
+                                <span class="absolute left-3 top-3 rounded-full bg-white/40 px-2.5 py-1 text-xs font-bold tabular-nums text-brand-700 backdrop-blur-sm">
+                                    {{ offer.monthlyInstalment|number_format(2, ',', ' ') }} zł/mies.
+                                </span>
+                                <h3 class="absolute bottom-2.5 left-3 right-3 truncate font-semibold text-white">
+                                    {{ offer.brand }} {{ offer.model }}
+                                </h3>
+                            </div>
+                            {% if shortlist.contains(offer.offerId) %}
+                                <form method="post" action="{{ path('shortlist_remove') }}" class="absolute right-3 top-3">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('shortlist') }}">
+                                    <input type="hidden" name="offerId" value="{{ offer.offerId }}">
+                                    <button type="submit"
+                                            class="flex size-9 cursor-pointer items-center justify-center rounded-full bg-white text-brand-500 shadow transition hover:text-brand-700 active:scale-95 motion-safe:hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500">
+                                        <span class="sr-only">Usuń {{ offer.brand }} {{ offer.model }} ze schowka</span>
+                                        <svg viewBox="0 0 24 24" fill="currentColor" class="size-5" aria-hidden="true">
+                                            <path d="M12 21C7 16.5 3 13 3 8.8 3 6 5.2 4 7.8 4c1.7 0 3.2.8 4.2 2.2C13 4.8 14.5 4 16.2 4 18.8 4 21 6 21 8.8c0 4.2-4 7.7-9 12.2z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{{ path('shortlist_add') }}" class="absolute right-3 top-3">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('shortlist') }}">
+                                    <input type="hidden" name="offerId" value="{{ offer.offerId }}">
+                                    <button type="submit"
+                                            class="flex size-9 cursor-pointer items-center justify-center rounded-full bg-white text-ink-500 shadow transition hover:text-brand-500 active:scale-95 motion-safe:hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500">
+                                        <span class="sr-only">Dodaj do schowka: {{ offer.brand }} {{ offer.model }}</span>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+                                            <path d="M12 21C7 16.5 3 13 3 8.8 3 6 5.2 4 7.8 4c1.7 0 3.2.8 4.2 2.2C13 4.8 14.5 4 16.2 4 18.8 4 21 6 21 8.8c0 4.2-4 7.7-9 12.2z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+{% endblock %}
